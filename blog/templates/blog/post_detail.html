@@ -9,11 +9,18 @@
         {% endif %}
         {% if user.is_authenticated %}
 			 <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+			 <a class="btn btn-default" href="{% url 'post_delete' pk=post.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
 		{% endif %}
         <h1>{{ post.title }}</h1>
         <p>{{ post.text|linebreaksbr }}</p>
 		<p><font color="green">{{ post.upvoteCount|linebreaksbr }}</font><font color="red"> {{ post.downvoteCount|linebreaksbr }}</font></p>
 		<a class="btn btn-default" href="{% url 'post_upvote' pk=post.pk %}"><span class="glyphicon glyphicon-arrow-up"></span></a>
 		<a class="btn btn-default" href="{% url 'post_downvote' pk=post.pk %}"><span class="glyphicon glyphicon-arrow-down"></span></a>
+		<a class="btn btn-default" href="{% url 'post_comment' pk=post.pk %}"><span class="glyphicon glyphicon-comment"></span></a></br>
+		Comments:
+		{% for comment in post.comment.all %}
+			<p>{{ comment.author}}: {{ comment.text }} 
+			{% if user.is_authenticated %} <a class="btn btn-default" href="{% url 'comment_delete' pk=comment.pk %}"><span class="glyphicon glyphicon-remove"></span></a></br> </p> {% endif %}
+		{% endfor %}
     </div>
 {% endblock %}

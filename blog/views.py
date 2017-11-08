@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from .models import Post
-from .forms import PostForm
+from .models import Post, Comment
+from .forms import PostForm, CommentForm
 
 def post_list(request):
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
@@ -38,20 +38,30 @@ def post_edit(request, pk):
         form = PostForm(instance=post)
     return render(request, 'blog/post_edit.html', {'form': form})
 
-def add_comment(request, pk):
+def post_comment(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
-        form = PostForm(request, instance=post)
+        form = CommentForm(request.POST)
         if form.is_valid():
-            post1 = form.save(commit=False)
-            #post.author = request.user
-            #post.published_date = timezone.now()
-            post.comment = post1;			
-            post.save()
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()
             return redirect('post_detail', pk=post.pk)
     else:
-        form = PostForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form': form})
+        form = CommentForm()
+    return render(request, 'blog/post_comment.html', {'form': form})
+
+def post_delete(request, pk):
+	post = get_object_or_404(Post, pk=pk)
+	if request.user == post.author:
+		post.delete()
+	return redirect('post_list')
+
+def comment_delete(request, pk):
+	comment = get_object_or_404(Comment, pk=pk)
+	if request.user == comment.post.author:
+		comment.delete()
+	return redirect('post_list')
 	
 	
 def post_upvote(request, pk):
